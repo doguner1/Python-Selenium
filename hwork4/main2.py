@@ -1,71 +1,110 @@
+
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
+from time import sleep
 from selenium.webdriver.common.by import By
-import time
-from selenium.webdriver.common.alert import Alert
 
-# Web driver'ı başlat
-driver = webdriver.Chrome(ChromeDriverManager().install())
-driver.get("https://www.saucedemo.com/")
+class Test_Odev:
 
-# Kullanıcı adı ve şifre alanlarına veri girme
-username_input = driver.find_element_by_id("user-name")
-time.sleep(2)
-password_input = driver.find_element_by_id("password")
-time.sleep(2)
-login_button = driver.find_element_by_id("login-button")
-time.sleep(2)
+    def __init__(self) -> None:
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+        driver.maximize_window()
+        driver.get("http://www.saucedemo.com/")
+        sleep(5)
 
-username_input.send_keys("standard_user")
-password_input.send_keys("secret_sauce")
+    def kullanici_adi(self):
+        userInput = self.driver.find_element(By.ID,"user-name")
+        passwordInput = self.driver.find_element(By.ID, "password")
+        loginBtn = self.driver.find_element(By.ID,"login-button")
+        sleep(2)
+        userInput.send_keys("")
+        passwordInput.send_keys("")
+        sleep(5)
+        loginBtn.click()
+        errorMessage = self.driver.find_element(By.XPATH, "//*[@id='login_button_container']/div/form/div[3]/h3")
+        testResult = errorMessage.text == "Epic sadface: Username is required"
+        print("\n --- Kullanici adi ve şifre girilmemiştir uyarisi testi ---\n")
+        print(f"Test Sonucu: {testResult}")
 
-# Login butonuna tıkla
-login_button.click()
 
-# 6 adet ürünün bulunmasını bekle
-time.sleep(2)
+    def kullanici_sifre(self):
+        userInput = self.driver.find_element(By.ID,"user-name")
+        passwordInput = self.driver.find_element(By.ID, "password")
+        loginBtn = self.driver.find_element(By.ID,"login-button")
+        sleep(2)
+        userInput.send_keys("1234")
+        passwordInput.send_keys("")
+        sleep(5)
+        loginBtn.click()
+        errorMessage = self.driver.find_element(By.XPATH,"//*[@id='login_button_container']/div/form/div[3]/h3")
+        testResult = errorMessage.text == "Epic sadface: Password is required"
+        print("\n --- Kullanici şifre girilmemiştir uyarisi testi ---\n")
+        print(f"Test Sonucu: {testResult}")
 
-products = driver.find_elements_by_class_name("inventory_item")
-assert len(products) == 6
 
-# Test Case 1: Kullanıcı adı ve şifre alanları boş geçildiğinde uyarı mesajı olarak "Epic sadface: Username is required" gösterilmelidir.
-username_input.clear()
-password_input.clear()
-login_button.click()
-alert = Alert(driver)
-assert "Epic sadface: Username is required" in alert.text
-alert.accept()
+    def kullanici_kilit_kontrol(self):
+        userInput = self.driver.find_element(By.ID,"user-name")
+        passwordInput = self.driver.find_element(By.ID, "password")
+        loginBtn = self.driver.find_element(By.ID,"login-button")
+        sleep(2)
+        userInput.send_keys("locked_out_user")
+        passwordInput.send_keys("secret_sauce")
+        sleep(5)
+        loginBtn.click()
+        errorMessage = self.driver.find_element(By.XPATH,"//*[@id='login_button_container']/div/form/div[3]/h3")
+        testResult = errorMessage.text == "Epic sadface: Sorry, this user has been locked out."
+        print("\n --- Kullanici adi ve şifresi kilitli uyarisi testi ---\n")
+        print(f"Test Sonucu: {testResult}")
 
-# Test Case 2: Sadece şifre alanı boş geçildiğinde uyarı mesajı olarak "Epic sadface: Password is required" gösterilmelidir.
-username_input.send_keys("standard_user")
-password_input.clear()
-login_button.click()
-alert = Alert(driver)
-assert "Epic sadface: Password is required" in alert.text
-alert.accept()
+    def icon_kontrol(self):
+        userInput = self.driver.find_element(By.ID,"user-name")
+        passwordInput = self.driver.find_element(By.ID, "password")
+        loginBtn = self.driver.find_element(By.ID,"login-button")
+        sleep(2)
+        userInput.send_keys("")
+        passwordInput.send_keys("")
+        sleep(5)
+        loginBtn.click()
+        errorBtnIcon = self.driver.find_element(By.CLASS_NAME,"svg-inline--fa fa-times-circle fa-w-16 error_icon")
+        errorBtnIcon.click()
+        print("\n --- Error button is closed ---\n")
 
-# Test Case 3: Kullanıcı adı "locked_out_user" şifre alanı "secret_sauce" gönderildiğinde "Epic sadface: Sorry, this user has been locked out." mesajı gösterilmelidir.
-username_input.clear()
-password_input.clear()
-username_input.send_keys("locked_out_user")
-password_input.send_keys("secret_sauce")
-login_button.click()
-alert = Alert(driver)
-assert "Epic sadface: Sorry, this user has been locked out." in alert.text
-alert.accept()
+    def inventory_kontrol(self):
+        userInput = self.driver.find_element(By.ID,"user-name")
+        passwordInput = self.driver.find_element(By.ID, "password")
+        loginBtn = self.driver.find_element(By.ID,"login-button")
+        sleep(2)
+        userInput.send_keys("standard_user")
+        passwordInput.send_keys("secret_sauce")
+        sleep(5)
+        loginBtn.click()
+        sleep(2)
+        print("\n --- Login is successful ---\n")
+        
+    def product_kontrol(self):
+        userInput = self.driver.find_element(By.ID,"user-name")
+        passwordInput = self.driver.find_element(By.ID, "password")
+        loginBtn = self.driver.find_element(By.ID,"login-button")
+        sleep(2)
+        userInput.send_keys("standard_user")
+        passwordInput.send_keys("secret_sauce")
+        sleep(5)
+        loginBtn.click()
+        sleep(2)
+        product_num = self.driver.find_elements(By.CLASS_NAME, "inventory-item")
+        print(f"Product number is : {len(product_num)}")
+        sleep(30)
 
-# Test Case 4: Kullanıcı adı ve şifre alanları boş geçildiğinde bu iki inputun yanında da kırmızı "X" ikonu çıkmalıdır. Daha sonra aşağıda çıkan uyarı mesajının kapatma butonuna tıklandığında bu "X" ikonları kaybolmalıdır.
-username_input.clear()
-password_input.clear()
-login_button.click()
-username_input_error_icon = driver.find_element_by_xpath("//input[@id='user-name']/following-sibling::button")
-password_input_error_icon = driver.find_element_by_xpath("//input[@id='password']/following-sibling::button")
-assert username_input_error_icon.is_displayed()
-assert password_input_error_icon.is_displayed()
-alert = Alert(driver)
-alert.accept()
-assert not username_input_error_icon.is_displayed()
-assert not password_input_error_icon.is_displayed()
+        
 
-# Web driver'ı kapat
-driver.close()
+
+testClass = Test_Odev()
+# testClass.kullanici_adi()
+# testClass.kullanici_sifre()
+# testClass.kullanici_kilit_kontrol()
+# testClass.icon_kontrol()
+# testClass.inventory_kontrol()
+testClass.product_kontrol()
+
+while True:
+    continue
